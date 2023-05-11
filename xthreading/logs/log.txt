@@ -1,0 +1,2 @@
+[11-May-2023 19:06:17 UTC] PHP Fatal error:  Allowed memory size of 2097152 bytes exhausted (tried to allocate 32768 bytes) in /home/alex/Workspace/testGAMESTIL/gamestil/admin_HprKrCJp2ng2fvjRsFfb/controller/sale/order.php on line 1501
+[11-May-2023 19:06:17 UTC] PHP Fatal error:  Allowed memory size of 2097152 bytes exhausted (tried to allocate 32768 bytes) in /home/alex/Workspace/testGAMESTIL/gamestil/admin_HprKrCJp2ng2fvjRsFfb/controller/sale/order.php on line 1501
