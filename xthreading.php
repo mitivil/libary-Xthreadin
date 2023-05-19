@@ -149,8 +149,8 @@ class xthreading
                         $result[] = [
                             'beacon'   => $this->procces[$i]['beacon'],
                             'status'   => 'error_execut_time',
-                            'message'  => 'Вышло время выполнения процесса, процесс не ответил',
-                            'execut_in_time'  => $time_execut
+                            'execut_in_time'  => $time_execut,
+                            'message'  => 'Вышло время выполнения процесса, процесс не ответил'
                         ];
                     }
                 }

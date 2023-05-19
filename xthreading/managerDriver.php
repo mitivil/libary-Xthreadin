@@ -15,7 +15,6 @@ class ManagerDriver
     public function runProcces($transferOutData): void
     {
         $start = microtime(true);
-
         try {
             if (file_exists($transferOutData['action']['file'])) {;
                 include_once($transferOutData['action']['file']);
@@ -76,9 +75,10 @@ class ManagerDriver
             ];
         } else {
             $result = [
-                'status'              => 'error',
-                'execut_in_time'      => $this->time,
-                'error_message'       => $this->error,
+                'beacon'          => $this->beacon,
+                'status'          => 'error',
+                'execut_in_time'  => $this->time,
+                'message'         => $this->error,
             ];
         }
         file_put_contents(__DIR__ . '/pid/' . $this->PID, serialize($result));
@@ -111,7 +111,7 @@ class ManagerDriver
     public function setError($status, $message, $debbug = []): void
     {
         $this->error = [
-            'status'  => $status,
+            'reason'  => $status,
             'message' => $message,
         ];
         if (!empty($debbug)) $this->error['debbug'] = $debbug;
@@ -151,6 +151,7 @@ try {
     //-Временная зона.
     date_default_timezone_set($configs['timezone']);
     ini_set('max_execution_time', $configs['max_execution_time']);
+    set_time_limit($configs['max_execution_time']);
     ini_set('memory_limit', $configs['memory_limit'] . 'M');
     //-Логи.
     ini_set("log_errors", 1);
