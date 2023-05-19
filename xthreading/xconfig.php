@@ -28,7 +28,7 @@ class xconfig
         /** Максимальное время выполнения скрипта
          *  Указать в секундах. 
          */
-        'max_execution_time' => 3,
+        'max_execution_time' => 10,
 
         /** Максимальная Память для скрипта
          * Указать в мегабайтах
@@ -59,17 +59,12 @@ class xconfig
         $this->configX['driver_file'] = $driver;
         return $this;
     }
-    public function setDirApplication($dir_application)
-    {
-        $this->configX['dir_application'] = $dir_application;
-        return $this;
-    }
-    public function setMaxTime($max_execution_time)
+    public function setTime($max_execution_time)
     {
         $this->configX['max_execution_time'] = $max_execution_time;
         return $this;
     }
-    public function setMemoryLimit($memory_limit)
+    public function setMemory($memory_limit)
     {
         $this->configX['memory_limit'] = $memory_limit;
         return $this;
