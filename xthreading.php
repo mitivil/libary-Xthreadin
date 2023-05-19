@@ -5,7 +5,6 @@ class xthreading
     private $dir_Xthreading = DIR_SYSTEM . 'library/';
 
     public $config;
-    public $system;
 
     private $threads = [];
     private $workerObj;
@@ -13,11 +12,14 @@ class xthreading
     private $route;
     private $data;
 
+    private $system;
+
     private $statusRun = false;
     private $timeStart;
     private $procces = [];
     private $history_pid = [];
     private $spare_time_execut = 3; //-Запасное время в сек.
+    private $error;
 
     public function __construct()
     {
@@ -28,13 +30,13 @@ class xthreading
     /******** Установить *********/
     public function setRoute($route)
     {
-        if (!is_string($route)){
-            error_log('Xthreadin- : Метод ->setRoute() принимает строковый тип, читайте документацию к библиотеке Xthreading ', 0);
-        }else{
+        if (!is_string($route)) {
+            $this->addError('setRoute($route)', 'Xthreadin- : Метод ->setRoute() принимает строковый тип, читайте документацию к библиотеке Xthreading');
+            error_log('Xthreadin- : Метод ->setRoute() принимает строковый тип, читайте документацию к библиотеке Xthreading', 0);
+        } else {
             $this->route = $route;
             return $this;
         }
-      
     }
     public function setData($data)
     {
@@ -43,13 +45,13 @@ class xthreading
     }
     public function setBeacon($beacon)
     {
-        if (!is_string($beacon)){
-            error_log('Xthreadin- : Метод ->setBeacon() принимает строковый тип, читайте документацию к библиотеке Xthreading ', 0);
-        }else{
+        if (!is_string($beacon)) {
+            $this->addError('setBeacon($beacon)', 'Xthreadin- : Метод ->setBeacon() принимает строковый тип, читайте документацию к библиотеке Xthreading');
+            error_log('Xthreadin- : Метод ->setBeacon() принимает строковый тип, читайте документацию к библиотеке Xthreading', 0);
+        } else {
             $this->beacon = $beacon;
             return $this;
         }
-
     }
 
     /******** Добавить работника *********/
@@ -71,7 +73,7 @@ class xthreading
                 $this->threads[$index]->setData($this->data);
                 $this->threads[$index]->setBeacon($this->beacon);
                 $this->threads[$index]->setStatus('await_run');
-                $this->reset();
+                $this->resetAdd();
                 return $this;
             } else {
                 error_log('Xthreadin- Достигли лимита процессов: ' . $limit_threads . ' , используйте метод ($this->xthreading->await()) что-бы освободить процессы или увеличить кол-во редактируйте (xconfig.php)', 0);
@@ -203,11 +205,18 @@ class xthreading
         $this->data = [];
         $this->route = '';
         $this->beacon = '';
+        $this->error = [];
         $this->loadConfig();
     }
 
 
     /******** Системные и прочее *********/
+    private function resetAdd()
+    {
+        $this->data = [];
+        $this->route = '';
+        $this->beacon = '';
+    }
     private function reload(): void
     {
         $this->data = [];
@@ -260,6 +269,20 @@ class xthreading
             }
         }
     }
+
+    //-Ошибки.
+    public function getError()
+    {
+        return $this->error;     
+    }
+    private function addError($method, $message)
+    {
+        $this->error[] = [
+            'method'  => '->' . $method,
+            'message' =>  $message
+        ];
+    }
+
 
     //-Разобрать.
     public function __destruct()
