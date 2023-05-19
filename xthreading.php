@@ -59,7 +59,8 @@ class xthreading
     {
         $limit_threads = (int)$this->config->get()['limit_threads'];
         if (empty($this->route)) {
-            error_log('Xthreadin- : Перед ->add() установите метод $this->xthreading->setRouter(), читайте документацию к библиотеке Xthreading ', 0);
+            $this->addError('add()', 'Xthreadin- : Перед ->add() установите метод $this->xthreading->setRouter(), читайте документацию к библиотеке Xthreading');
+            error_log('Xthreadin- : Перед ->add() установите метод $this->xthreading->setRouter(), читайте документацию к библиотеке Xthreading', 0);
         } else {
             if ((int)(count($this->threads) + 1) <= $limit_threads) {
                 //-Добавляем.
@@ -76,7 +77,8 @@ class xthreading
                 $this->resetAdd();
                 return $this;
             } else {
-                error_log('Xthreadin- Достигли лимита процессов: ' . $limit_threads . ' , используйте метод ($this->xthreading->await()) что-бы освободить процессы или увеличить кол-во редактируйте (xconfig.php)', 0);
+                $this->addError('add()', 'Xthreadin- Достигли лимита процессов: ' . $limit_threads . ' , используйте метод ($this->xthreading->await()) что-бы освободить процессы или увеличить кол-во редактируйте (xconfig.php)');
+                error_log('Xthreadin->add(): Достигли лимита процессов: ' . $limit_threads . ' , используйте метод ($this->xthreading->await()) что-бы освободить процессы или увеличить кол-во редактируйте (xconfig.php)', 0);
             }
         }
     }
@@ -84,20 +86,30 @@ class xthreading
     /******** Запуск работника *********/
     public function run()
     {
-        $this->deleteFilesPid(); //-Очистим старые файлы-pid перед запуском.
-
-        if (!empty($this->threads)) {
-            $this->runAsync(); //-Запускаем процесс в Асинхронном режиме.
-            return $this;
-        } else {
-            error_log('Xthreadin- Перед тем как запускать процессы добавьте их в список $this->xthreading->add()', 0);
+        try {
+            $this->deleteFilesPid(); //-Очистим старые файлы-pid перед запуском.
+            if (!empty($this->threads)) {
+                $this->runAsync(); //-Запускаем процесс в Асинхронном режиме.
+                return $this;
+            } else {
+                $this->addError('run()', 'Xthreadin- Перед тем как запускать процессы добавьте их в список $this->xthreading->add()');
+                error_log('Xthreadin- Перед тем как запускать процессы добавьте их в список $this->xthreading->add()', 0);
+            }
+        } catch (Error $er) {
+            $this->addError('run()', $er->getMessage());
+            error_log('Xthreadin->run(): ' . $er->getMessage(), 0);
         }
     }
     /******** Ожидаем работников *********/
     public function await()
     {
-        $result = $this->awaitSync(); //-Ожидаем все асинхронные процессы.
-        return $result;
+        try {
+            $result = $this->awaitSync(); //-Ожидаем все асинхронные процессы.
+            return $result;
+        } catch (Error $er) {
+            $this->addError('await()', $er->getMessage());
+            error_log('Xthreadin->await(): ' . $er->getMessage(), 0);
+        }
     }
 
 
@@ -151,7 +163,7 @@ class xthreading
                         $result[] = [
                             'beacon'   => $this->procces[$i]['beacon'],
                             'status'   => 'error_execut_time',
-                            'execut_in_time'  => $time_execut,
+                            'execut_in_time'  => (int)$time_execut,
                             'message'  => 'Вышло время выполнения процесса, процесс не ответил'
                         ];
                     }
@@ -166,13 +178,18 @@ class xthreading
 
     private function isThreads($pid)
     {
-        $path_file = $this->dir_Xthreading . 'xthreading/pid/' . $pid;
-        if (file_exists($path_file)) {
-            $data = file_get_contents($path_file);
-            $this->deleteFileProcc($pid);
-            return  unserialize($data);
-        } else {
-            return false;
+        try {
+            $path_file = $this->dir_Xthreading . 'xthreading/pid/' . $pid;
+            if (file_exists($path_file)) {
+                $data = file_get_contents($path_file);
+                $this->deleteFileProcc($pid);
+                return  unserialize($data);
+            } else {
+                return false;
+            }
+        } catch (Error $er) {
+            $this->addError('isThreads($pid)', 'Приватный метод: ' . $er->getMessage());
+            error_log('Xthreadin: ' . $er->getMessage(), 0);
         }
     }
 
@@ -180,33 +197,48 @@ class xthreading
     /******** Получить информацию текущего состояния *********/
     public function getInfo()
     {
-        $info = [];
-        $info['threads']['total'] = count($this->threads);
-        foreach ($this->threads as $thread) {
-            $info['threads']['list'][] = [
-                'beacon'  => $thread->getBeacon(),
-                'status'  => $thread->getStatus(),
-                'config'  => $thread->getConfig(),
-                'route'   => $thread->getRoute(),
-            ];
+        try {
+            $info = [];
+            $info['threads']['total'] = count($this->threads);
+            foreach ($this->threads as $thread) {
+                $info['threads']['list'][] = [
+                    'beacon'  => $thread->getBeacon(),
+                    'status'  => $thread->getStatus(),
+                    'config'  => $thread->getConfig(),
+                    'route'   => $thread->getRoute(),
+                ];
+            }
+            return $info;
+        } catch (Error $er) {
+            $this->addError('getInfo()', $er->getMessage());
+            error_log('Xthreadin->getInfo(): ' . $er->getMessage(), 0);
         }
-        return $info;
     }
     /******** Монитор-системы ОЗУ, ЦПУ *********/
     public function getSystem()
     {
-        $this->loadInfoSystem();
-        return  $this->system->getSystem();
+        try {
+            $this->loadInfoSystem();
+            return  $this->system->getSystem();
+        } catch (Error $er) {
+            $this->addError('getSystem()', $er->getMessage());
+            error_log('Xthreadin->getSystem(): ' . $er->getMessage(), 0);
+        }
     }
 
     /******** Сбрасываем конфигурацию *********/
     public function reset()
     {
-        $this->data = [];
-        $this->route = '';
-        $this->beacon = '';
-        $this->error = [];
-        $this->loadConfig();
+        try {
+            $this->data = [];
+            $this->route = '';
+            $this->beacon = '';
+            $this->error = [];
+            $this->loadConfig();
+        } catch (Error $er) {
+            $this->addError('reset()', $er->getMessage());
+            error_log('Xthreadin->reset(): ' . $er->getMessage(), 0);
+        }
     }
 
 
@@ -228,52 +260,77 @@ class xthreading
     }
     private function loadConfig(): void
     {
-        $path = $this->dir_Xthreading . 'xthreading/xconfig.php';
-        include_once($path);
-        $this->config = new xconfig();
+        try {
+            $path = $this->dir_Xthreading . 'xthreading/xconfig.php';
+            include_once($path);
+            $this->config = new xconfig();
+        } catch (Error $er) {
+            $this->addError('sys! loadConfig()', $er->getMessage());
+            error_log('Xthreadin sys!: ' . $er->getMessage(), 0);
+        }
     }
     private function loadWorker(): void
     {
-        $path = $this->dir_Xthreading . 'xthreading/worker.php';
-        include_once($path);;
-        $this->workerObj = new Worker($this->config->get());
+        try {
+            $path = $this->dir_Xthreading . 'xthreading/worker.php';
+            include_once($path);;
+            $this->workerObj = new Worker($this->config->get());
+        } catch (Error $er) {
+            $this->addError('sys! loadWorker()', $er->getMessage());
+            error_log('Xthreadin sys!: ' . $er->getMessage(), 0);
+        }
     }
     private function loadInfoSystem(): void
     {
-        $path = $this->dir_Xthreading . 'xthreading/infoSystem.php';
-        include_once($path);
-        $this->system = new InfoSystem($this->config->get());
+        try {
+            $path = $this->dir_Xthreading . 'xthreading/infoSystem.php';
+            include_once($path);
+            $this->system = new InfoSystem($this->config->get());
+        } catch (Error $er) {
+            $this->addError('sys! loadInfoSystem()', $er->getMessage());
+            error_log('Xthreadin sys!: ' . $er->getMessage(), 0);
+        }
     }
 
     private function deleteFileProcc($pid): void
     {
-        $path_file = $this->dir_Xthreading . 'xthreading/pid/' . $pid;
-        if (file_exists($path_file)) {
-            unlink($path_file);
+        try {
+            $path_file = $this->dir_Xthreading . 'xthreading/pid/' . $pid;
+            if (file_exists($path_file)) {
+                unlink($path_file);
+            }
+        } catch (Error $er) {
+            $this->addError('sys!  deleteFileProcc($pid)', $er->getMessage());
+            error_log('Xthreadin sys!: ' . $er->getMessage(), 0);
         }
     }
     private function deleteFilesPid(): void
     {
-        date_default_timezone_set('Europe/Moscow');
-        $path_file = $this->dir_Xthreading . 'xthreading/pid/';
-        $files_pid = scandir($path_file);
-        foreach ($files_pid as $file) {
-            $path_file_pid = $path_file . $file;
-            if (file_exists($path_file_pid) && $file != '.' && $file != '..') {
-                $date_now = new DateTime(date("Y-m-d H:i:s"));
-                $date_file = new DateTime(date("Y-m-d H:i:s", filemtime($path_file_pid)));
-                $date_file->modify("+20 minutes"); //-Через 20 минут старые файл-PID удалятся.
-                if ($date_file < $date_now) {
-                    unlink($path_file_pid);
+        try {
+            date_default_timezone_set('Europe/Moscow');
+            $path_file = $this->dir_Xthreading . 'xthreading/pid/';
+            $files_pid = scandir($path_file);
+            foreach ($files_pid as $file) {
+                $path_file_pid = $path_file . $file;
+                if (file_exists($path_file_pid) && $file != '.' && $file != '..') {
+                    $date_now = new DateTime(date("Y-m-d H:i:s"));
+                    $date_file = new DateTime(date("Y-m-d H:i:s", filemtime($path_file_pid)));
+                    $date_file->modify("+20 minutes"); //-Через 20 минут старые файл-PID удалятся.
+                    if ($date_file < $date_now) {
+                        unlink($path_file_pid);
+                    }
                 }
             }
+        } catch (Error $er) {
+            $this->addError('sys!  deleteFilesPid()', $er->getMessage());
+            error_log('Xthreadin sys!: ' . $er->getMessage(), 0);
         }
     }
 
     //-Ошибки.
     public function getError()
     {
-        return $this->error;     
+        return $this->error;
     }
     private function addError($method, $message)
     {

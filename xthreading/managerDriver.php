@@ -29,12 +29,12 @@ class ManagerDriver
                 $this->respons = (empty($this->data)) ? $classXthreading->{$transferOutData['action']['method']}() : $classXthreading->{$transferOutData['action']['method']}($this->data);
             } else {
 
-                $this->setError('error xthreading (runProcces)', 'Не найден исполняемый файл для запуска (' . $transferOutData['action']['file'] . ')');
+                $this->setError('error xthreading (managerDriver->runProcces)', 'Не найден исполняемый файл для запуска (' . $transferOutData['action']['file'] . ')');
             }
         } catch (Error $e) {
 
             //-Ошибка запуска процесса.
-            $this->setError('error xthreading (runProcces)', $e->getMessage());
+            $this->setError('error xthreading (managerDriver->runProcces)', $e->getMessage());
         } finally {
             $this->time = round((microtime(true) - $start), 0);
         }
@@ -54,11 +54,11 @@ class ManagerDriver
                 return $transferOutData; //-Action приходит из подключаемого драйвера.
             } else {
 
-                $this->setError('error xthreading (runEngine)', 'Не найден файл драйвера  (' . $path_file_driver . ')');
+                $this->setError('error xthreading (managerDriver->runEngine)', 'Не найден файл драйвера  (' . $path_file_driver . ')');
             }
         } catch (Error $e) {
             //-Ошибка конфигураций движка.
-            $this->setError('error xthreading (runEngine)', $e->getMessage());
+            $this->setError('error xthreading (managerDriver->runEngine)', $e->getMessage());
         }
     }
 
@@ -70,14 +70,14 @@ class ManagerDriver
             $result = [
                 'beacon'            => $this->beacon,
                 'status'            => 'ok',
-                'completed_in_time' => $this->time,
+                'completed_in_time' => (int)$this->time,
                 'respons'           => $this->respons
             ];
         } else {
             $result = [
                 'beacon'          => $this->beacon,
                 'status'          => 'error',
-                'execut_in_time'  => $this->time,
+                'execut_in_time'  => (int)$this->time,
                 'message'         => $this->error,
             ];
         }
@@ -160,21 +160,21 @@ try {
     //-Подключаем движок проекта(Сайта).
     $transferOutData = $driver->runEngine();
     //-Проверка выходных данных драйвера.
-    if (!isset($transferOutData))  $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул $transferOutData)', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.', $driver->getConfigX());
-    if (empty($transferOutData))   $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData)', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.', $driver->getConfigX());
-    if (!isset($transferOutData['action']['file']))  $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул  $transferOutData["action"]["file"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
-    if (!isset($transferOutData['action']['class']))  $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул  $transferOutData["action"]["class"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
-    if (!isset($transferOutData['action']['method']))  $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул  $transferOutData["action"]["method"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
-    if (empty($transferOutData['action']['file']))  $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData["action"]["file"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
-    if (empty($transferOutData['action']['class']))  $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData["action"]["class"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
-    if (empty($transferOutData['action']['method']))  $driver->setError('error xthreading (Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData["action"]["method"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
+    if (!isset($transferOutData))  $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул $transferOutData)', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.', $driver->getConfigX());
+    if (empty($transferOutData))   $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData)', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.', $driver->getConfigX());
+    if (!isset($transferOutData['action']['file']))  $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул  $transferOutData["action"]["file"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
+    if (!isset($transferOutData['action']['class']))  $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул  $transferOutData["action"]["class"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
+    if (!isset($transferOutData['action']['method']))  $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" не вернул  $transferOutData["action"]["method"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
+    if (empty($transferOutData['action']['file']))  $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData["action"]["file"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
+    if (empty($transferOutData['action']['class']))  $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData["action"]["class"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
+    if (empty($transferOutData['action']['method']))  $driver->setError('error xthreading managerDriver->(Драйвер "' . $driver->getConfigX()['driver_file'] . '" вернул пустой $transferOutData["action"]["method"])', 'Настройте драйвер для вашего проекта(Сайта, движка) правильно и прочитайте документацию ещё раз.');
 
     //-Запускаем процесс.
     $driver->runProcces($transferOutData);
 } catch (Error $e) {
 
     //-ERROR.
-    $driver->setError('error xthreading (Не запустился менеджер драйвера)', $e->getMessage());
+    $driver->setError('error xthreading managerDriver(Не запустился менеджер драйвера)', $e->getMessage());
 } finally {
 
     //-Завешаем процесс.
