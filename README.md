@@ -150,7 +150,7 @@ Array
 
  - **```$this->xthreading->config->get()```** 
    + ->get() -Возвращает все настройки из файла ```xthreading/xconfig.php``` конфигураций.
-  ---------
+ 
  - **```$this->xthreading->config->setUser('www-data')```** 
     + ->setUser() -Устанавливает пользователя в системе Линукс для запуска процессов (Определяется при запуске менеджера-драйверов).
  - **```$this->xthreading->config->setMemory(60)```** 
@@ -167,7 +167,7 @@ $this->xthreading->config->setUser('www-data')->setMemory(50)->setDriver('driver
 ```
 <br><br>
 
------------------------------------
+------------------
 
 <a id="setSystem"></a>
 
